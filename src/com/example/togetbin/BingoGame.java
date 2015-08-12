@@ -39,10 +39,8 @@ public class BingoGame extends Activity{
 		
 		gNumber = new GenNumber();
 		currentNumber = (TextView)findViewById(R.id.CurrentNumber);
-		currentNumber.setText(Integer.toString(gNumber.getNumber()));
 		GameStart = (Button)findViewById(R.id.GameStart);
 		GameStart.setOnClickListener(new OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
 				Button btn = (Button)v;
@@ -50,28 +48,27 @@ public class BingoGame extends Activity{
 				if(begin){
 					begin = false;
 					btn.setText("Begin");
-					gridview.setAdapter(new ImageAdapter(BingoGame.this));
-					currentNumber.setText("1");
-					gNumber.setNumber(2);
-					btn.setBackgroundColor(Color.GRAY);
-					btn.setClickable(false);
+					resetGame();
 				}else{
 					begin = true;
-					currentNumber.setText("Game Start !");
 					btn.setText("Restart");
+					currentNumber.setText("Game Start !");
 				}
 			}
 		});
-		GameStart.setClickable(false);
-		GameStart.setBackgroundColor(Color.GRAY);
 		
 		gridview = (GridView) findViewById(R.id.BingoView);
 		gridview.setNumColumns(column);
 		gridview.setHorizontalSpacing(space);
 	    gridview.setVerticalSpacing(space);
-	    gridview.setAdapter(new ImageAdapter(BingoGame.this));
-	    
-	    
+	    resetGame();
+	}
+	private void resetGame(){
+		currentNumber.setText("1");
+		gNumber.setNumber(2);
+		GameStart.setBackgroundColor(Color.GRAY);
+		GameStart.setClickable(false);
+		gridview.setAdapter(new ImageAdapter(BingoGame.this));
 	}
 	private class GenNumber {
 		private Stack<Integer> mStack;
@@ -80,16 +77,9 @@ public class BingoGame extends Activity{
 			mStack = new Stack<Integer>();
 		}
 		public int getNumber(){
-			int value;
-			if(mStack.isEmpty()){
-				if(number > column*column)
-					value = -1;
-				else
-					value = number++;
-			}
-			else
-				value = mStack.pop();
-			return value;
+			if(number > column*column)return -1;
+			if(mStack.isEmpty())return number++;
+			else return mStack.pop();
 		}
 		public void saveNumber(int n){
 			mStack.push(n);
@@ -134,12 +124,11 @@ public class BingoGame extends Activity{
 
 	        if (convertView == null) {
 	            // if it's not recycled, initialize some attributes
-	        	GridView gv = (GridView)findViewById(R.id.BingoView);
-	        	int awidth = (gv.getWidth() - (column - 1) * space)/column;
+	        	int columnWidth = (gridview.getWidth() - (column - 1) * space)/column;
 	        	int height = 150;
-	        	gv.setColumnWidth(awidth);
+	        	gridview.setColumnWidth(columnWidth);
 	        	btn = new Button(mContext);
-	        	btn.setLayoutParams(new GridView.LayoutParams(awidth, height));
+	        	btn.setLayoutParams(new GridView.LayoutParams(columnWidth, height));
 	        	btn.setOnClickListener(new OnClickListener() {
 					
 					@Override
