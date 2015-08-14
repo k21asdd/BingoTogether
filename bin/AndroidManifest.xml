@@ -26,6 +26,10 @@
             android:name=".BingoGame"
             android:label="@string/app_name" >
         </activity>
+        <activity
+            android:name=".RoomList"
+            android:label="@string/app_name" >
+        </activity>
     </application>
 
 </manifest>
