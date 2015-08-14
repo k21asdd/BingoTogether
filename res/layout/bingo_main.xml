@@ -9,20 +9,27 @@
     tools:context="com.example.togetbin.BingoMainActivity" >
     
    	<Button 
-   	    android:id="@+id/startBingo"
+   	    android:id="@+id/singleBingo"
+   	    android:layout_above="@+id/mutiBingo"
+   	    android:layout_width="wrap_content"
+   	    android:layout_height="wrap_content"
+   	    android:layout_centerHorizontal="true"
+   	    android:text="Single"
+   	    />
+   	<Button 
+   	    android:id="@+id/mutiBingo"
    	    android:layout_width="wrap_content"
    	    android:layout_height="wrap_content"
    	    android:layout_centerHorizontal="true"
    	    android:layout_centerVertical="true"
-   	    android:text="Start"
+   	    android:text="Mutiple"
    	    />
    	<Button 
    	    android:id="@+id/exitBingo"
-   	    android:layout_below="@+id/startBingo"
+   	    android:layout_below="@+id/mutiBingo"
    	    android:layout_width="wrap_content"
    	    android:layout_height="wrap_content"
    	    android:layout_centerHorizontal="true"
-   	    android:layout_centerVertical="true"
    	    android:text="Exit"
    	    />
 
