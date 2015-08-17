@@ -29,7 +29,6 @@ public class BingoMainActivity extends Activity {
 				Intent intent = new Intent();
 				intent.setClass(BingoMainActivity.this, BingoGame.class);
 				startActivity(intent);
-				finish();
 			}
 		});
 		muti.setOnClickListener(new OnClickListener() {
