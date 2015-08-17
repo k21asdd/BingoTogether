@@ -1,5 +1,7 @@
 package com.example.togetbin;
 
+import java.util.ArrayList;
+import java.util.Random;
 import java.util.Stack;
 
 import android.R.dimen;
@@ -23,12 +25,13 @@ import android.widget.Toast;
 
 public class BingoGame extends Activity{
 	private static Button[] Btns;
-	private TextView currentNumber;
+	private TextView currentNumber, Debug;
 	private Button GameStart;
 	private GridView gridview;
 	private int column;
 	private boolean begin = false;
 	private boolean first = true;
+	private boolean self = true;
 	private GenNumber gNumber;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,7 @@ public class BingoGame extends Activity{
 		
 		gNumber = new GenNumber();
 		Btns = new Button[column*column];
+		Debug = (TextView)findViewById(R.id.debug);
 		currentNumber = (TextView)findViewById(R.id.CurrentNumber);
 		GameStart = (Button)findViewById(R.id.GameStart);
 		GameStart.setOnClickListener(new OnClickListener() {
@@ -50,6 +54,7 @@ public class BingoGame extends Activity{
 				if(begin){
 					begin = false;
 					btn.setText("Begin");
+					first = false;
 					resetGame();
 				}else{
 					begin = true;
@@ -68,6 +73,7 @@ public class BingoGame extends Activity{
 		currentNumber.setText("1");
 		gNumber.setNumber(2);
 		GameStart.setBackgroundColor(Color.GRAY);
+		GameStart.setTextColor(Color.WHITE);
 		GameStart.setClickable(false);
 		gridview.setAdapter(new ImageAdapter(BingoGame.this));
 	}
@@ -78,9 +84,9 @@ public class BingoGame extends Activity{
 			mStack = new Stack<Integer>();
 		}
 		public int getNumber(){
+			if(!mStack.isEmpty())return mStack.pop();
 			if(number > column*column)return -1;
-			if(mStack.isEmpty())return number++;
-			else return mStack.pop();
+			return number++;
 		}
 		public void saveNumber(int n){
 			mStack.push(n);
@@ -96,7 +102,7 @@ public class BingoGame extends Activity{
 	    
 	    public ImageAdapter(Context c) {
 	        mContext = c;
-	        Log.i("Bingo_pos", String.valueOf(column));
+
 	        line = new int[column*2+2];
 	        for(int i = 0 ; i < column*2+2 ; i++)
 	        	line[i] = column;
@@ -118,7 +124,6 @@ public class BingoGame extends Activity{
 		public View getView(final int position, View convertView, ViewGroup parent) {
 			// TODO Auto-generated method stub
 			Button btn;
-			
 	        if (convertView == null) {
 	            // if it's not recycled, initialize some attributes
 	        	int columnWidth = (gridview.getWidth() - (column - 1) * gridview.getVerticalSpacing())/column;
@@ -133,8 +138,6 @@ public class BingoGame extends Activity{
 	        } else {
 	        	btn = (Button) convertView;
 	        }
-	        Log.i("Bingo_pos", String.valueOf(position));
-	        BingoGame.Btns[position] = btn;
 	        return btn;
 		}
 		private class BingoClick implements OnClickListener{
@@ -170,46 +173,68 @@ public class BingoGame extends Activity{
 				Button active = (Button) v;
 				if(begin){
 					int position = (int)active.getTag();
-					Log.i("Bingo_pos", "He : " + String.valueOf(position));
-					Log.i("Bingo_pos", "He : " + String.valueOf(gridview.getHeight()));
-					Log.i("Bingo_pos", "He : " + String.valueOf(gridview.getVerticalSpacing()));
+					int colorCode = self ? Color.YELLOW : Color.BLUE;
+					if(first){
+						if(position == 0)position = max-1;
+						else position--;
+					}
 					updateLine(position/column,
 							column + position%column,
 							l2r(position),
 							r2l(position));
-					TextView dd = (TextView)findViewById(R.id.debug);
-					dd.setText("");
-					for(int i : line){
-						dd.setText(dd.getText() + " " +String.valueOf(i));
-					}
-					currentNumber.setText("You got "+finLine());
-					active.setBackgroundColor(Color.YELLOW);
+					active.setBackgroundColor(colorCode);
 					active.setClickable(false);
+					if(finLine()>=column){
+						currentNumber.setText("You got "+finLine()+"\n"
+							+ "You Win !!");
+						for(Button b : BingoGame.Btns) b.setClickable(false);
+						return;
+					}
+					else currentNumber.setText("You got "+finLine());
+					if(self){
+						self = false;
+						WaitForOpponent();
+					}else{
+						self = true;
+					}
 				}else{
-					int position = (int)active.getTag();
-					Log.i("Bingo_pos", "He : " + String.valueOf(position));
-					Log.i("Bingo_pos", "He : " + String.valueOf(gridview.getHeight()));
-					Log.i("Bingo_pos", "He : " + String.valueOf(gridview.getVerticalSpacing()));
 					if((active.getText().length()) == 0){
 						number++;
 						active.setText(currentNumber.getText());
+						BingoGame.Btns[Integer.valueOf(
+								String.valueOf(
+										currentNumber.getText()))-1] = active;
 						if(number == max){
 							GameStart.setClickable(true);
 							GameStart.setBackgroundColor(Color.LTGRAY);
+							GameStart.setTextColor(Color.BLACK);
 						}
 						else 
 							currentNumber.setText(Integer.toString(gNumber.getNumber()));
 					}
 					else{
+						if(number != max) 
+							gNumber.saveNumber(Integer.valueOf(currentNumber.getText().toString()));
 						number--;
-						gNumber.saveNumber(Integer.valueOf(currentNumber.getText().toString()));
 						currentNumber.setText(active.getText());
 						active.setText("");
 						GameStart.setClickable(false);
 						GameStart.setBackgroundColor(Color.GRAY);
+						GameStart.setTextColor(Color.WHITE);
 					}
 				}
 			}
+		}
+		private void WaitForOpponent(){
+			//very bad algorithm
+			int r;
+			ArrayList<Integer> nn;
+			nn = new ArrayList<Integer>();
+			for(int i = 0 ; i<column*column;i++)
+				if(Btns[i].isClickable())nn.add(Integer.valueOf(i));
+			Random ran = new Random();
+			self = false;
+			Btns[(int)nn.get(ran.nextInt(nn.size()))].performClick();
 		}
 	}
 	
