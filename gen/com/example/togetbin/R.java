@@ -33,20 +33,27 @@ public final class R {
         public static final int sample_7=0x7f020008;
     }
     public static final class id {
-        public static final int BingoView=0x7f080004;
-        public static final int CurrentNumber=0x7f080003;
-        public static final int GameStart=0x7f080005;
-        public static final int action_settings=0x7f080008;
-        public static final int debug=0x7f080006;
+        public static final int BingoView=0x7f080005;
+        public static final int CurrentNumber=0x7f080004;
+        public static final int GameStart=0x7f080006;
+        public static final int Grid=0x7f08000b;
+        public static final int RoomName=0x7f080008;
+        public static final int UserName=0x7f08000a;
+        public static final int action_settings=0x7f08000d;
+        public static final int cr_text=0x7f080003;
+        public static final int debug=0x7f080007;
         public static final int exitBingo=0x7f080002;
+        public static final int linearLayout1=0x7f080009;
         public static final int mutiBingo=0x7f080001;
-        public static final int room=0x7f080007;
+        public static final int room=0x7f08000c;
         public static final int singleBingo=0x7f080000;
     }
     public static final class layout {
         public static final int bingo_main=0x7f030000;
-        public static final int game_view=0x7f030001;
-        public static final int root_list=0x7f030002;
+        public static final int create_room=0x7f030001;
+        public static final int game_view=0x7f030002;
+        public static final int list_view_1=0x7f030003;
+        public static final int root_list=0x7f030004;
     }
     public static final class menu {
         public static final int bingo_main=0x7f070000;
