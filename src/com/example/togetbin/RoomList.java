@@ -8,10 +8,12 @@ import java.lang.ref.WeakReference;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -23,14 +25,15 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 public class RoomList extends Activity{
 	private ListView Rlist;
-	private ArrayList<String> ll;
-	private String[] list = {"Hello"};
-	private ArrayAdapter<String> listAdapter;
+	private List<HashMap<String, String>> list;
+	private SimpleAdapter listAdapter;
 	private Messenger mMessanger;
+	private CommunicateServer ControlChannel;
 	
 	private class ListHandler extends Handler{
 		WeakReference<RoomList> mAct;
@@ -42,7 +45,6 @@ public class RoomList extends Activity{
 		public void handleMessage(Message msg){
 			RoomList act = mAct.get();
 			if(act == null)return;
-			listAdapter = new ArrayAdapter<String>(RoomList.this, android.R.layout.simple_list_item_1, list);
 			listAdapter.notifyDataSetChanged();
 			Log.d("Toget", "Msg done");
 		}
@@ -52,11 +54,15 @@ public class RoomList extends Activity{
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.root_list);
-		ll = new ArrayList<String>();
+		list = new ArrayList<HashMap<String,String>>();
+		listAdapter = new SimpleAdapter(
+				getApplicationContext(), 
+				list, 
+				R.layout.list_view_1, 
+				new String[]{"RoomName","UserName","Grid"}, 
+				new int[]{R.id.RoomName,R.id.UserName,R.id.Grid});
 		Rlist = (ListView)findViewById(R.id.room);
-		listAdapter = new ArrayAdapter<String>(RoomList.this, android.R.layout.simple_list_item_1, list);
 		Rlist.setAdapter(listAdapter);
-		mMessanger = new Messenger(new ListHandler(this));
 		Rlist.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
@@ -70,43 +76,19 @@ public class RoomList extends Activity{
 				}
 			}
 		});
-		
+		ControlChannel = CommunicateServer.getInstance();
+		mMessanger = new Messenger(new ListHandler(this));
 		new Thread(){
 			public void run() {
 				try {
-					Socket s = new Socket("163.20.34.159", 5566);
-					BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-					PrintWriter out = new PrintWriter(s.getOutputStream());
-					this.sleep(500);
-					out.println(BingoSignal.QUERY);
-					out.flush();
-					if(Integer.valueOf(in.readLine()) == BingoSignal.QUERY){
-						String data = in.readLine();
-						while(data.compareTo("Q_DONE") != 0){
-							ll.add(data);
-							data = in.readLine();
-						}
-						list = new String[ll.size()];
-						list = ll.toArray(list);
-						for(String ss : list){
-							Log.d("Toget", ss + "haha");
-						}
-						Message msg = new Message();
-						msg.what = 123;
-						try {
-							mMessanger.send(msg);
-						} catch (RemoteException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				} catch (UnknownHostException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InterruptedException e) {
+					list.clear();
+					ControlChannel.Query(
+							new String[]{"RoomName","UserName","Grid"}, 
+							list);
+					Message msg = new Message();
+					msg.what = 123;
+					mMessanger.send(msg);
+				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
