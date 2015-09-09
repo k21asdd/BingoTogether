@@ -36,9 +36,8 @@ public class BingoMainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				RoomList ac = new RoomList();
 				Intent intent = new Intent();
-				intent.setClass(BingoMainActivity.this, RoomList.class);
+				intent.setClass(BingoMainActivity.this, CreateRoom.class);
 				startActivity(intent);
 				finish();
 			}
