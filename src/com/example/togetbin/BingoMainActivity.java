@@ -11,14 +11,15 @@ import android.widget.Button;
 
 public class BingoMainActivity extends Activity {
 	
-	private Button single,muti,exit;
+	private Button single,create,query,exit;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.bingo_main);
 		single = (Button) findViewById(R.id.singleBingo);
 		exit = (Button) findViewById(R.id.exitBingo);
-		muti = (Button) findViewById(R.id.mutiBingo);
+		create = (Button) findViewById(R.id.CreateRoom);
+		query = (Button) findViewById(R.id.QueryRoom);
 		
 		single.setOnClickListener(new OnClickListener() {
 			
@@ -31,7 +32,17 @@ public class BingoMainActivity extends Activity {
 				startActivity(intent);
 			}
 		});
-		muti.setOnClickListener(new OnClickListener() {
+		query.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent intent = new Intent();
+				intent.setClass(BingoMainActivity.this, RoomList.class);
+				startActivity(intent);
+			}
+		});
+		create.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
@@ -39,7 +50,6 @@ public class BingoMainActivity extends Activity {
 				Intent intent = new Intent();
 				intent.setClass(BingoMainActivity.this, CreateRoom.class);
 				startActivity(intent);
-				finish();
 			}
 		});
 		exit.setOnClickListener(new OnClickListener() {

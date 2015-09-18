@@ -8,4 +8,5 @@ public class BingoSignal {
 	public static final int TEARDOWN = 4;
 	public static final int CHAT = 5;
 	public static final int GAME_READY = 6;
+	public static final int WIN = 7;
 }

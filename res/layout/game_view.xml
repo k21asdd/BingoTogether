@@ -16,30 +16,48 @@
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    />
-   	<GridView
-   	    android:id="@+id/BingoView"
-   	    android:layout_below="@+id/CurrentNumber"
-   	    android:layout_width="match_parent"
+	<TableLayout 
+	    android:id="@+id/tablelayout1"
+	    android:layout_width="match_parent"
    	    android:layout_height="wrap_content"
-   	    android:horizontalSpacing="5dp"
-   	    android:verticalSpacing="5dp"
-   	    android:gravity="center"
-   	    android:stretchMode="columnWidth">
-   	</GridView>
-	<Button
-	    android:id="@+id/GameStart"
-	    android:layout_below="@+id/BingoView"
-	    android:layout_marginTop="@dimen/activity_horizontal_margin"
-	    android:gravity="center"
+   	    android:layout_below="@+id/CurrentNumber"
+   	    android:padding="5dp"
+	    ></TableLayout>
+	<LinearLayout 
+	    android:id = "@+id/Buttons"
+	    android:layout_below="@+id/tablelayout1"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
-	    android:text="Begin"
+	   	android:orientation="horizontal"
+	   	android:paddingLeft="10dp"
+    	android:paddingRight="15dp"
+	    >
+		<Button
+		    android:id="@+id/GameStart"
+		    android:layout_marginTop="@dimen/activity_horizontal_margin"
+		    android:layout_weight = "1"
+		    android:layout_marginRight="10dp"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:text="Begin"
 	    />
+		<Button
+		    android:id="@+id/GameExit"
+		    android:layout_marginTop="@dimen/activity_horizontal_margin"
+		    android:layout_weight = "1"
+		    android:layout_marginLeft="10dp"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:text="Exit"
+	    />        
+	</LinearLayout>
+	
 	<TextView 
 	    android:id="@+id/debug"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
-	    android:layout_below="@+id/GameStart"
+	    android:layout_below="@+id/Buttons"
 	    android:text="Ha"/>
+	
 </RelativeLayout>
 

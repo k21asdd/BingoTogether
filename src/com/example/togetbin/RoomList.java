@@ -59,8 +59,8 @@ public class RoomList extends Activity{
 				getApplicationContext(), 
 				list, 
 				R.layout.list_view_1, 
-				new String[]{"RoomName","UserName","Grid"}, 
-				new int[]{R.id.RoomName,R.id.UserName,R.id.Grid});
+				new String[]{"RoomName","UserName","Grid", "number"}, 
+				new int[]{R.id.RoomName,R.id.UserName,R.id.Grid,R.id.number});
 		Rlist = (ListView)findViewById(R.id.room);
 		Rlist.setAdapter(listAdapter);
 		Rlist.setOnItemClickListener(new OnItemClickListener() {
@@ -83,8 +83,9 @@ public class RoomList extends Activity{
 				try {
 					list.clear();
 					ControlChannel.Query(
-							new String[]{"RoomName","UserName","Grid"}, 
-							list);
+							new String[]{"RoomName","UserName","Grid","number"}, 
+							list,
+							ControlChannel.Connect(BingoSignal.QUERY));
 					Message msg = new Message();
 					msg.what = 123;
 					mMessanger.send(msg);

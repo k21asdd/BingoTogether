@@ -25,16 +25,28 @@ public class CommunicateServer {
 		genIns();
 		return CC;
 	};
-	public boolean Query(String param[], List<HashMap<String, String>> list){
+	public Socket Connect(int signal){
 		Socket control;
-		BufferedReader in;
 		PrintWriter out;
 		try {
 			control = new Socket(Addr, port);
-			in = new BufferedReader(new InputStreamReader(control.getInputStream()));
 			out = new PrintWriter(control.getOutputStream());
-			out.println(BingoSignal.QUERY);
+			out.println(signal);
 			out.flush();
+			return control;
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	public boolean Query(String param[], List<HashMap<String, String>> list, Socket control){
+		BufferedReader in;
+		try {
+			in = new BufferedReader(new InputStreamReader(control.getInputStream()));
 			if(Integer.valueOf(in.readLine()) == BingoSignal.QUERY){
 				String data = in.readLine();
 				while(data.compareTo("Q_DONE") != 0){
@@ -58,33 +70,31 @@ public class CommunicateServer {
 		}
 		return false;
 	}
-	public int Create(String info, Socket ComTun){
+	public int Create(String info, Socket control){
 		int index = -1;
-		Socket control;
 		BufferedReader in;
 		PrintWriter out;
 		try {
-			control = new Socket(Addr, port);
 			in = new BufferedReader(new InputStreamReader(control.getInputStream()));
 			out = new PrintWriter(control.getOutputStream());
-			
-			out.println(BingoSignal.CREATE);
-			out.flush();
 			out.println(info);
 			out.flush();
 			
-			String pp = in.readLine();
+			int newPort;
+			Socket Opponent;
+			String pp;
+			
+			pp = in.readLine();
 			Log.d("NewPort",  pp);
-			int newPort = Integer.valueOf( pp);
-			
-			control.close();
-			ComTun = new Socket("163.20.34.159", newPort);
-			
-			in = new BufferedReader(new InputStreamReader(ComTun.getInputStream()));
-			out = new PrintWriter(ComTun.getOutputStream());
-			if((Integer.valueOf(in.readLine()) == BingoSignal.CREATE) && (in.readLine().compareTo("Q_OK") == 0)){
-				index = Integer.valueOf(in.readLine());
+			newPort = Integer.valueOf(pp);
+			Opponent = new Socket("163.20.34.159", newPort);
+			index = connect2Server(Opponent);
+			if(index == -1){
+				//failed
+			}else{
+				CommunicateOpponent.getInstance().setChannel2Server(Opponent);
 			}
+			control.close();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -94,13 +104,26 @@ public class CommunicateServer {
 		}
 		return index;
 	}
-	public boolean Teardown(int index){
-		Socket control;
+	private int connect2Server(Socket s){
+		BufferedReader in;
 		try {
-			control = new Socket("163.20.34.159", 5566);
-			new PrintWriter(control.getOutputStream(), true).println(BingoSignal.TEARDOWN);
+			in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+			if((Integer.valueOf(in.readLine()) == 
+					BingoSignal.CREATE) && 
+					(in.readLine().compareTo("Q_OK") == 0)){
+				return Integer.valueOf(in.readLine());
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	public boolean Teardown(int index, Socket control){
+		try {
 			new PrintWriter(control.getOutputStream(), true).println(index);
 			String sig = new BufferedReader(new InputStreamReader(control.getInputStream())).readLine();
+			control.close();
 			if(Integer.valueOf(sig) == BingoSignal.TEARDOWN)
 				return true;
 			else

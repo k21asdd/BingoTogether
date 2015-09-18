@@ -7,5 +7,70 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 		android:id="@+id/cr_text"/>
-
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+	    <EditText
+	        android:id="@+id/Rname"
+		    android:layout_width = "fill_parent"
+		    android:layout_height= "wrap_content" 
+		    android:hint = "Room name"
+		    android:layout_marginLeft = "6dp"
+            android:layout_marginRight = "6dp"
+		    />    
+    </LinearLayout>
+	<LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+	    <EditText
+	        android:id="@+id/Uname"
+		    android:layout_width = "fill_parent"
+		    android:layout_height= "wrap_content"
+		    android:hint = "User name" 
+			android:layout_marginLeft = "6dp"
+            android:layout_marginRight = "6dp"
+		    />    
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+	    <EditText
+	        android:id="@+id/Gnumber"
+		    android:layout_width = "wrap_content"
+		    android:layout_height= "wrap_content"
+		    android:hint = "Grid number"
+		    android:inputType="numberDecimal"
+		    android:maxLength="1" 
+		    android:layout_marginLeft = "6dp"
+            android:layout_marginRight = "6dp"
+		    />    
+    </LinearLayout>
+    <LinearLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+        <Button 
+            android:id = "@+id/confirm"
+            android:layout_width = "fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft = "6dp"
+            android:layout_marginRight = "3dp"
+            android:text="Confirm"/>
+        <Button 
+            android:id = "@+id/goBack"
+            android:layout_width = "fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft = "6dp"
+            android:layout_marginRight = "3dp"
+            android:text="Exit"/>
+    </LinearLayout>
 </LinearLayout>

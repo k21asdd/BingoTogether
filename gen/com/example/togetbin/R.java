@@ -33,20 +33,29 @@ public final class R {
         public static final int sample_7=0x7f020008;
     }
     public static final class id {
-        public static final int BingoView=0x7f080005;
-        public static final int CurrentNumber=0x7f080004;
-        public static final int GameStart=0x7f080006;
-        public static final int Grid=0x7f08000b;
-        public static final int RoomName=0x7f080008;
-        public static final int UserName=0x7f08000a;
-        public static final int action_settings=0x7f08000d;
-        public static final int cr_text=0x7f080003;
-        public static final int debug=0x7f080007;
-        public static final int exitBingo=0x7f080002;
-        public static final int linearLayout1=0x7f080009;
-        public static final int mutiBingo=0x7f080001;
-        public static final int room=0x7f08000c;
+        public static final int Buttons=0x7f08000c;
+        public static final int CreateRoom=0x7f080002;
+        public static final int CurrentNumber=0x7f08000a;
+        public static final int GameExit=0x7f08000e;
+        public static final int GameStart=0x7f08000d;
+        public static final int Gnumber=0x7f080007;
+        public static final int Grid=0x7f080013;
+        public static final int QueryRoom=0x7f080001;
+        public static final int Rname=0x7f080005;
+        public static final int RoomName=0x7f080010;
+        public static final int Uname=0x7f080006;
+        public static final int UserName=0x7f080012;
+        public static final int action_settings=0x7f080016;
+        public static final int confirm=0x7f080008;
+        public static final int cr_text=0x7f080004;
+        public static final int debug=0x7f08000f;
+        public static final int exitBingo=0x7f080003;
+        public static final int goBack=0x7f080009;
+        public static final int linearLayout1=0x7f080011;
+        public static final int number=0x7f080014;
+        public static final int room=0x7f080015;
         public static final int singleBingo=0x7f080000;
+        public static final int tablelayout1=0x7f08000b;
     }
     public static final class layout {
         public static final int bingo_main=0x7f030000;

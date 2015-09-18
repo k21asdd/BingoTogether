@@ -11,26 +11,40 @@ import java.net.SocketAddress;
 import java.net.UnknownHostException;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 public class CreateRoom extends Activity{
 	private TextView test;
+	private EditText Rname,Uname,Gnumber;
+	private Button Confirm, GoBack;
 	private CRHandler mHandler;
+	private Socket C2S;
 	private CommunicateServer ControlChannel;
-	public CreateRoom(){}
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.create_room);
+		Rname = (EditText)findViewById(R.id.Rname);
+		Uname = (EditText)findViewById(R.id.Uname);
+		Gnumber = (EditText)findViewById(R.id.Gnumber);
+		Confirm = (Button)findViewById(R.id.confirm);
+		GoBack = (Button)findViewById(R.id.goBack);
 		test = (TextView)findViewById(R.id.cr_text);
 		test.setText("");
 		ControlChannel = CommunicateServer.getInstance();
 		mHandler = new CRHandler(this);
+		
+		/*
 		new Thread(){
 			public void run(){
 				try {
@@ -43,6 +57,50 @@ public class CreateRoom extends Activity{
 					e.printStackTrace();
 				}		
 			}
+		}.start();*/
+		Confirm.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				new Thread(){
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						super.run();
+						String RoomName = Rname.getText().toString();
+						String UserName = Uname.getText().toString();
+						String GridNumber = Gnumber.getText().toString();
+						if(RoomName.isEmpty() || UserName.isEmpty() || GridNumber.isEmpty())
+							return;
+						//Display wait icon
+						int index =  ControlChannel.Create(RoomName + " " +
+								UserName + " " +
+								GridNumber, C2S);
+						if(index == -1){
+							//¼u¥X°T®§
+							return;
+						}
+						BingoGame bg = new BingoGame();
+						Intent intent = new Intent();
+						intent.putExtra("INDEX", index);
+						intent.putExtra("GRID", GridNumber);
+						intent.putExtra("CREATOR", true);
+						intent.setClass(CreateRoom.this, BingoGame.class);
+						startActivity(intent);
+						finish();
+					}
+				}.start();
+			}
+		});
+	}
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		// TODO Auto-generated method stub
+		super.onWindowFocusChanged(hasFocus);
+		new Thread(){
+			public void run() {
+				C2S = ControlChannel.Connect(BingoSignal.CREATE);
+			};
 		}.start();
 	}
 	private class CRHandler extends Handler{
@@ -58,6 +116,7 @@ public class CreateRoom extends Activity{
 			test.setText(test.getText()+msg.getData().getString("Hello")+"\r\n");
 		}
 	};
+	//use for debug
 	private void update(String s){
 		Message msg = new Message();
 		msg.what = 0;
