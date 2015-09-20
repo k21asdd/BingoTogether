@@ -43,7 +43,11 @@ public class CreateRoom extends Activity{
 		test.setText("");
 		ControlChannel = CommunicateServer.getInstance();
 		mHandler = new CRHandler(this);
-		
+		new Thread(){
+			public void run() {
+				C2S = ControlChannel.Connect(BingoSignal.CREATE);
+			};
+		}.start();
 		/*
 		new Thread(){
 			public void run(){
@@ -79,29 +83,18 @@ public class CreateRoom extends Activity{
 						if(index == -1){
 							//¼u¥X°T®§
 							return;
-						}
-						BingoGame bg = new BingoGame();
-						Intent intent = new Intent();
-						intent.putExtra("INDEX", index);
-						intent.putExtra("GRID", GridNumber);
-						intent.putExtra("CREATOR", true);
-						intent.setClass(CreateRoom.this, BingoGame.class);
-						startActivity(intent);
-						finish();
+						}						
+						Bundle data = new Bundle();
+						data.putInt("INDEX", index);
+						data.putInt("GRID", Integer.valueOf(GridNumber));
+						Message msg = new Message();
+						msg.what = 123;
+						msg.setData(data);
+						mHandler.sendMessage(msg);
 					}
 				}.start();
 			}
 		});
-	}
-	@Override
-	public void onWindowFocusChanged(boolean hasFocus) {
-		// TODO Auto-generated method stub
-		super.onWindowFocusChanged(hasFocus);
-		new Thread(){
-			public void run() {
-				C2S = ControlChannel.Connect(BingoSignal.CREATE);
-			};
-		}.start();
 	}
 	private class CRHandler extends Handler{
 		WeakReference<CreateRoom> mAct;
@@ -113,7 +106,20 @@ public class CreateRoom extends Activity{
 		public void handleMessage(Message msg){
 			CreateRoom act = mAct.get();
 			if(act == null)return;
-			test.setText(test.getText()+msg.getData().getString("Hello")+"\r\n");
+			switch (msg.what){
+			case 0:
+				test.setText(test.getText()+msg.getData().getString("Hello")+"\r\n");
+				break;
+			case 123:
+				Bundle data = msg.getData();
+				Intent intent = new Intent();
+				intent.putExtra("INDEX", data.getInt("INDEX"));
+				intent.putExtra("GRID", data.getInt("GRID"));
+				intent.putExtra("CREATOR", true);
+				intent.setClass(CreateRoom.this, BingoGame.class);
+				startActivity(intent);
+				finish();
+			}
 		}
 	};
 	//use for debug

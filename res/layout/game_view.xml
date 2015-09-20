@@ -22,6 +22,7 @@
    	    android:layout_height="wrap_content"
    	    android:layout_below="@+id/CurrentNumber"
    	    android:padding="5dp"
+   	    android:stretchColumns="*"
 	    ></TableLayout>
 	<LinearLayout 
 	    android:id = "@+id/Buttons"

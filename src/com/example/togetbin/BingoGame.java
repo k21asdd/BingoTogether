@@ -12,7 +12,11 @@ import android.R.dimen;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Path.Op;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,13 +44,12 @@ public class BingoGame extends Activity{
 	private boolean self = true;
 	private GenNumber gNumber = new GenNumber();
 	private int number = 0;
-	
+	private Messenger mMessenger;
 	//³s½u
 	private boolean GameOver;
 	private boolean Creator;
 	private int Index;
 	private CommunicateOpponent Opponent = null;
-	private receiveMessage Msg = null;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -55,28 +58,23 @@ public class BingoGame extends Activity{
 		setContentView(R.layout.game_view);
 		
 		Debug = (TextView)findViewById(R.id.debug);
-		Msg = new receiveMessage() {
-			@Override
-			public void getMessage(String s) {
-				// TODO Auto-generated method stub
-				Debug.setText(s);
-			}
-		};
+		mMessenger = new Messenger(new CatchView());
 		currentNumber = (TextView)findViewById(R.id.CurrentNumber);
 		Index = getIntent().getIntExtra("INDEX", -1);
+
 		if(Index != -1) {
 			Opponent = CommunicateOpponent.getInstance();
-			column = Integer.valueOf(getIntent().getStringExtra("GRID"));
+			column = getIntent().getIntExtra("GRID", 0);
 			Creator = getIntent().getBooleanExtra("CREATOR", false);
 			GameOver = false;
 			if(Creator){
-				Msg.getMessage("Wait for Opponent");
-				Opponent.waitForOpponent(Msg);
+				Opponent.waitForOpponent(mMessenger);
+				self = true;
 			}else{
-				Msg.getMessage("Get Ready");
-				Opponent.joinOpponent();
+				Opponent.joinOpponent(Index, mMessenger);
+				self = false;
 			}
-		}else column = 4;
+		}else column = 5;
 		line = new int[column*2+2];
 		Btns = new Button[column*column];
 		GameStart = (Button)findViewById(R.id.GameStart);
@@ -84,6 +82,7 @@ public class BingoGame extends Activity{
 			@Override
 			public void onClick(View v) {
 				Button btn = (Button)v;
+				Log.d("Net", "Click123");
 				// TODO Auto-generated method stub
 				if(begin){
 					if(Index != -1 && !GameOver){
@@ -94,24 +93,33 @@ public class BingoGame extends Activity{
 					btn.setText("Begin");
 					setNewGame();
 				}else{
+					Log.d("Net", "Click");
 					if(Opponent != null){
-						Opponent.Tell_Opponent_Im_Ready();
-						try {
-							if(!Opponent.isReady()){
-								Msg.getMessage("Something wrong1");
+						if(!Opponent.isExist()) return;
+						if(!Opponent.isReady()){
+							Opponent.Tell_Opponent_Im_Ready();
+							try {
+								Debug.setText(Debug.getText() + "\nReady, and wait");
+								Opponent.Wait_Opponent_Ready(mMessenger);
+								GameStart.setClickable(false);
+								GameStart.setBackgroundColor(Color.GRAY);
 								return;
+							} catch (NumberFormatException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
-						} catch (NumberFormatException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
 						}
 					}
 					begin = true;
+					GameOver = false;
 					btn.setText("Restart");
 					currentNumber.setText("Game Start !");
+					if(!Creator) {
+						WaitForOpponent();
+						Debug.setText("Wait Opponent !");
+					}else{
+						Debug.setText("Your turn !");
+					}
 				}
 			}
 		});
@@ -119,26 +127,22 @@ public class BingoGame extends Activity{
 		GameExit.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				try {
-					if(Index != -1){
-						if(Opponent.isExist()){
-							if(!Opponent.TearDown()){
-								//Display error
-								return;
-							}
-						}
-						if(!CommunicateServer.getInstance().Teardown(Index, 
-								CommunicateServer.getInstance().Connect(BingoSignal.TEARDOWN))){
-							//Display Error
-							return; 
+				if(Index != -1){
+					if(Opponent.isExist()){
+						if(!Opponent.TearDown()){
+							//Display error
+							return;
 						}
 					}
-					finish();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					try {
+						CommunicateServer.getInstance().Teardown(Index);
+						Opponent.Exit();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
+				finish();
 			}
 		});
 	    game = (TableLayout)findViewById(R.id.tablelayout1); 
@@ -159,6 +163,7 @@ public class BingoGame extends Activity{
 	        	btn.setTag(Integer.valueOf(position));
 	        	btn.setHeight(height);
 	        	btn.setWidth(columnWidth);
+	        	btn.setMinimumWidth(100);
 	        	btn.setOnClickListener(new BingoClick());
 	        	Btns[position] = btn;
 	        	tR.addView(btn);
@@ -168,7 +173,12 @@ public class BingoGame extends Activity{
 	    currentNumber.setText("1");
 		gNumber.setNumber(2);
 		number = 0;
-		self = true;
+		if(Opponent != null){
+			if(Creator)
+				self = true;
+			else
+				self = false;
+		}else self = true;
 		GameExit.setBackgroundColor(Color.LTGRAY);
 		GameStart.setBackgroundColor(Color.GRAY);
 		GameStart.setTextColor(Color.WHITE);
@@ -231,6 +241,7 @@ public class BingoGame extends Activity{
 			// TODO Auto-generated method stub
 			Button active = (Button) v;
 			if(begin){
+				if(Opponent != null && Opponent.OppTurn() && !self) return;
 				int position = (int)active.getTag();
 				int colorCode = self ? Color.YELLOW : Color.BLUE;
 				updateLine(position/column,
@@ -245,30 +256,41 @@ public class BingoGame extends Activity{
 					for(Button btn : Btns){
 						btn.setClickable(false);
 					}
-					if(Opponent != null)
-						Opponent.Win(position);
+					if(Opponent != null){
+						Opponent.Win(Integer.valueOf(active.getText().toString()));
+						try {
+							Opponent.Exit();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					GameOver = true;
 					return;
 				}
 				else currentNumber.setText("You got "+finLine());
-				if(Opponent != null)
-					try {
-						Opponent.Step(position);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					
 				if(self){
+					if(Opponent != null){
+					try {
+							Opponent.Step(Integer.valueOf(active.getText().toString()));
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
 					self = false;
+					Debug.setText("Wait Opponent !");
 					WaitForOpponent();
 				}else{
 					self = true;
+					Debug.setText("Your turn !");
 				}
 			}else{
 				if((active.getText().length()) == 0){
 					number++;
 					active.setText(currentNumber.getText());
 					if(number == max){
-						if(Opponent != null && !Opponent.isExist()) return;
 						GameStart.setClickable(true);
 						GameStart.setBackgroundColor(Color.LTGRAY);
 						GameStart.setTextColor(Color.BLACK);
@@ -291,7 +313,7 @@ public class BingoGame extends Activity{
 	}
 	private void WaitForOpponent(){
 		//very bad algorithm
-		if(Opponent != null) Opponent.OpponentStep(Msg);
+		if(Opponent != null) Opponent.OpponentStep(mMessenger);
 		else Robot();
 	}
 	private void Robot(){
@@ -303,8 +325,34 @@ public class BingoGame extends Activity{
 		Random ran = new Random();
 		nn.get(ran.nextInt(nn.size())).performClick();
 	}
-	public interface receiveMessage{
-		public abstract void getMessage(String s); 
+	public interface stepClick{
+		public void step(final int index);
+	}
+	private class CatchView extends Handler{
+		@Override
+		public void handleMessage(Message msg) {
+			// TODO Auto-generated method stub
+			super.handleMessage(msg);
+			switch (msg.what){
+			case BingoSignal.CONNECT:
+				Debug.setText(Debug.getText() + "\nConnect");
+				break;
+			case BingoSignal.GAME_READY:
+				GameStart.performClick();
+				break;
+			case BingoSignal.STEP:
+				for(Button btn:Btns)
+					if(btn.getText().toString().compareTo(msg.getData().getString("INDEX")) == 0)
+						btn.performClick();
+				break;
+			case BingoSignal.WIN:
+				currentNumber.setText("You lose !");
+				break;
+			case BingoSignal.TEARDOWN:
+				currentNumber.setText("Opponent is out !");
+				break;
+			}
+		}
 	}
 	/*
 	gridview = (GridView) findViewById(R.id.BingoView);

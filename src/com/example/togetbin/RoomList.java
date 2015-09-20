@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,6 +27,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class RoomList extends Activity{
@@ -69,11 +71,15 @@ public class RoomList extends Activity{
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				// TODO Auto-generated method stub
-				if(position == 0){
-					
-				}else{
-					
-				}
+				String number = ((TextView)view.findViewById(R.id.number)).getText().toString();
+				String grid = ((TextView)view.findViewById(R.id.Grid)).getText().toString();
+				Intent intent = new Intent();
+				intent.putExtra("INDEX", Integer.valueOf(number));
+				intent.putExtra("GRID", Integer.valueOf(grid));
+				intent.putExtra("CREATOR", false);
+				intent.setClass(RoomList.this, BingoGame.class);
+				startActivity(intent);
+				finish();
 			}
 		});
 		ControlChannel = CommunicateServer.getInstance();
