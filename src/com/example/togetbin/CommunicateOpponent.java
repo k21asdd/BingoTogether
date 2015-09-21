@@ -225,6 +225,7 @@ public class CommunicateOpponent {
 							Oin.readLine();
 							Message msg = new Message();
 							msg.what = BingoSignal.WIN;
+							
 							mMessenger.send(msg);
 							Exit();
 							return;

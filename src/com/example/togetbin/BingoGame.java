@@ -345,6 +345,9 @@ public class BingoGame extends Activity{
 				break;
 			case BingoSignal.WIN:
 				currentNumber.setText("You lose !");
+				for(Button btn : Btns){
+					btn.setClickable(false);
+				}
 				break;
 			case BingoSignal.TEARDOWN:
 				currentNumber.setText("Opponent is out !");

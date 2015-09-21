@@ -26,6 +26,7 @@ public class CommunicateServer {
 	public static CommunicateServer getInstance(){
 		if(CC != null)return CC;
 		genIns();
+		
 		return CC;
 	};
 	public Socket Connect(int signal){

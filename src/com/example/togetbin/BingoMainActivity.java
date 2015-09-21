@@ -16,6 +16,7 @@ public class BingoMainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.bingo_main);
+		
 		single = (Button) findViewById(R.id.singleBingo);
 		exit = (Button) findViewById(R.id.exitBingo);
 		create = (Button) findViewById(R.id.CreateRoom);

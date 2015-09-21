@@ -35,6 +35,7 @@ public class CreateRoom extends Activity{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.create_room);
 		Rname = (EditText)findViewById(R.id.Rname);
+		
 		Uname = (EditText)findViewById(R.id.Uname);
 		Gnumber = (EditText)findViewById(R.id.Gnumber);
 		Confirm = (Button)findViewById(R.id.confirm);

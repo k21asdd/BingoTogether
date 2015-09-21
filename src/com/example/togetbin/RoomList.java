@@ -49,6 +49,7 @@ public class RoomList extends Activity{
 			if(act == null)return;
 			listAdapter.notifyDataSetChanged();
 			Log.d("Toget", "Msg done");
+			
 		}
 	};
 	@Override
