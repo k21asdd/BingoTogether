@@ -83,7 +83,7 @@ public class CommunicateOpponent {
 				// TODO Auto-generated method stub
 				super.run();
 				try {
-					Log.d("Net", "Connect");
+					Log.d("Net", "wait Connect");
 					int Signal = Integer.valueOf(Oin.readLine());
 					if(BingoSignal.CONNECT == Signal) joinOpponent();
 					Log.d("Net", "Connect");

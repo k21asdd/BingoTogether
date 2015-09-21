@@ -12,6 +12,7 @@ import java.util.List;
 
 
 
+
 import android.util.Log;
 
 public class CommunicateServer {
@@ -35,11 +36,15 @@ public class CommunicateServer {
 			out = new PrintWriter(control.getOutputStream());
 			out.println(signal);
 			out.flush();
+			Thread.sleep(5000);
 			return control;
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -48,6 +53,7 @@ public class CommunicateServer {
 	public boolean Query(String param[], List<HashMap<String, String>> list, Socket control){
 		BufferedReader in;
 		try {
+			
 			in = new BufferedReader(new InputStreamReader(control.getInputStream()));
 			if(Integer.valueOf(in.readLine()) == BingoSignal.QUERY){
 				String data = in.readLine();
