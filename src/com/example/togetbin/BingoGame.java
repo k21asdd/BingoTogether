@@ -95,7 +95,10 @@ public class BingoGame extends Activity{
 				}else{
 					Log.d("Net", "Click");
 					if(Opponent != null){
-						if(!Opponent.isExist()) return;
+						if(!Opponent.isExist()) {
+							Debug.setText("No Opponent");
+							return;
+						}
 						if(!Opponent.isReady()){
 							Opponent.Tell_Opponent_Im_Ready();
 							try {
@@ -114,7 +117,7 @@ public class BingoGame extends Activity{
 					GameOver = false;
 					btn.setText("Restart");
 					currentNumber.setText("Game Start !");
-					if(!Creator) {
+					if(Opponent != null & self) {
 						WaitForOpponent();
 						Debug.setText("Wait Opponent !");
 					}else{
@@ -173,12 +176,7 @@ public class BingoGame extends Activity{
 	    currentNumber.setText("1");
 		gNumber.setNumber(2);
 		number = 0;
-		if(Opponent != null){
-			if(Creator)
-				self = true;
-			else
-				self = false;
-		}else self = true;
+
 		GameExit.setBackgroundColor(Color.LTGRAY);
 		GameStart.setBackgroundColor(Color.GRAY);
 		GameStart.setTextColor(Color.WHITE);
@@ -273,6 +271,7 @@ public class BingoGame extends Activity{
 				if(self){
 					if(Opponent != null){
 					try {
+							Debug.setText("Wait Opponent !");
 							Opponent.Step(Integer.valueOf(active.getText().toString()));
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
@@ -280,11 +279,10 @@ public class BingoGame extends Activity{
 						}
 					}
 					self = false;
-					Debug.setText("Wait Opponent !");
 					WaitForOpponent();
 				}else{
 					self = true;
-					Debug.setText("Your turn !");
+					if(Opponent != null)Debug.setText("Your turn !");
 				}
 			}else{
 				if((active.getText().length()) == 0){
