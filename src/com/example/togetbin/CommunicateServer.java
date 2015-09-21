@@ -15,7 +15,7 @@ import java.util.List;
 import android.util.Log;
 
 public class CommunicateServer {
-	private static final String Addr = "192.168.43.60";
+	private static final String Addr = "163.20.34.159";
 	private static final int port = 55166;
 	private static CommunicateServer CC = null;
 	private CommunicateServer(){};
@@ -25,6 +25,7 @@ public class CommunicateServer {
 	public static CommunicateServer getInstance(){
 		if(CC != null)return CC;
 		genIns();
+		
 		return CC;
 	};
 	public Socket Connect(int signal){
