@@ -1,37 +1,23 @@
 package com.example.togetbin;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.Socket;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Stack;
 
-import android.R.dimen;
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Path.Op;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class BingoGame extends Activity{
 	private static Button[] Btns;
@@ -58,10 +44,10 @@ public class BingoGame extends Activity{
 		setContentView(R.layout.game_view);
 		
 		Debug = (TextView)findViewById(R.id.debug);
-		mMessenger = new Messenger(new CatchView());
+		mMessenger = new Messenger(new CatchView(this));
 		currentNumber = (TextView)findViewById(R.id.CurrentNumber);
 		Index = getIntent().getIntExtra("INDEX", -1);
-
+		
 		if(Index != -1) {
 			Opponent = CommunicateOpponent.getInstance();
 			column = getIntent().getIntExtra("GRID", 0);
@@ -82,7 +68,6 @@ public class BingoGame extends Activity{
 			@Override
 			public void onClick(View v) {
 				Button btn = (Button)v;
-				Log.d("Net", "Click123");
 				// TODO Auto-generated method stub
 				if(begin){
 					if(Index != -1 && !GameOver){
@@ -93,14 +78,13 @@ public class BingoGame extends Activity{
 					btn.setText("Begin");
 					setNewGame();
 				}else{
-					Log.d("Net", "Click");
 					if(Opponent != null){
+						if(!Opponent.AmIReady())
+							Opponent.Tell_Opponent_Im_Ready();
 						if(!Opponent.isExist()) {
 							Debug.setText("No Opponent");
 							return;
-						}
-						if(!Opponent.isReady()){
-							Opponent.Tell_Opponent_Im_Ready();
+						}else if(!Opponent.isReady()){
 							try {
 								Debug.setText(Debug.getText() + "\nReady, and wait");
 								Opponent.Wait_Opponent_Ready(mMessenger);
@@ -112,12 +96,13 @@ public class BingoGame extends Activity{
 								e.printStackTrace();
 							}
 						}
+						
 					}
 					begin = true;
 					GameOver = false;
 					btn.setText("Restart");
 					currentNumber.setText("Game Start !");
-					if(Opponent != null & self) {
+					if(Opponent != null & !self) {
 						WaitForOpponent();
 						Debug.setText("Wait Opponent !");
 					}else{
@@ -239,7 +224,7 @@ public class BingoGame extends Activity{
 			// TODO Auto-generated method stub
 			Button active = (Button) v;
 			if(begin){
-				if(Opponent != null && Opponent.OppTurn() && !self) return;
+				if(active.isPressed() && !self) return;
 				int position = (int)active.getTag();
 				int colorCode = self ? Color.YELLOW : Color.BLUE;
 				updateLine(position/column,
@@ -256,12 +241,6 @@ public class BingoGame extends Activity{
 					}
 					if(Opponent != null){
 						Opponent.Win(Integer.valueOf(active.getText().toString()));
-						try {
-							Opponent.Exit();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
 					}
 					GameOver = true;
 					return;
@@ -309,6 +288,13 @@ public class BingoGame extends Activity{
 			}
 		}
 	}
+	private void GameFinish(String s) throws IOException{
+		currentNumber.setText(s);
+		for(Button btn : Btns){
+			btn.setClickable(false);
+		}
+		Opponent.Exit();
+	}
 	private void WaitForOpponent(){
 		//very bad algorithm
 		if(Opponent != null) Opponent.OpponentStep(mMessenger);
@@ -326,17 +312,23 @@ public class BingoGame extends Activity{
 	public interface stepClick{
 		public void step(final int index);
 	}
-	private class CatchView extends Handler{
+	private static class CatchView extends Handler{
+		private final WeakReference<BingoGame> mActivity;
+		public CatchView(BingoGame BG) {
+			// TODO Auto-generated constructor stub
+			mActivity = new WeakReference<BingoGame>(BG);
+		} 
 		@Override
 		public void handleMessage(Message msg) {
 			// TODO Auto-generated method stub
+			BingoGame mAct = mActivity.get();
 			super.handleMessage(msg);
 			switch (msg.what){
 			case BingoSignal.CONNECT:
-				Debug.setText(Debug.getText() + "\nConnect");
+				mAct.Debug.setText(mAct.Debug.getText() + "\nConnect");
 				break;
 			case BingoSignal.GAME_READY:
-				GameStart.performClick();
+				mAct.GameStart.performClick();
 				break;
 			case BingoSignal.STEP:
 				for(Button btn:Btns)
@@ -344,13 +336,20 @@ public class BingoGame extends Activity{
 						btn.performClick();
 				break;
 			case BingoSignal.WIN:
-				currentNumber.setText("You lose !");
-				for(Button btn : Btns){
-					btn.setClickable(false);
+				try {
+					mAct.GameFinish("You lose !");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 				break;
 			case BingoSignal.TEARDOWN:
-				currentNumber.setText("Opponent is out !");
+				try {
+					mAct.GameFinish("Opponent is out !");
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				break;
 			}
 		}
