@@ -12,8 +12,6 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
-import com.example.togetbin.BingoGame.stepClick;
-
 public class CommunicateOpponent {
 	private Socket Opponent;
 	private PrintWriter Oout;
@@ -36,6 +34,7 @@ public class CommunicateOpponent {
 		Log.d("Net", "Start conn to server");
 		if(Opponent != null && Opponent.isConnected()){
 			Opponent.close(); Opponent = null;
+			Log.d("Net", "Why socket not close ?");
 		}
 		Opponent = s;
 		Oout = new PrintWriter(Opponent.getOutputStream());
@@ -55,8 +54,8 @@ public class CommunicateOpponent {
 				try {
 					
 					CommunicateOpponent.getInstance().setChannel2Server
-							(CommunicateServer.getInstance().Connection
-								(index, CommunicateServer.getInstance().Connect(BingoSignal.CONNECT)));
+							(CommunicateServer.getInstance().Connection(index,
+									CommunicateServer.getInstance().Connect(BingoSignal.CONNECT)));
 					Oout.println(BingoSignal.CONNECT);
 					Oout.flush();
 					Message msg = new Message();
@@ -85,8 +84,13 @@ public class CommunicateOpponent {
 				try {
 					Log.d("Net", "wait Connect");
 					int Signal = Integer.valueOf(Oin.readLine());
-					if(BingoSignal.CONNECT == Signal) joinOpponent();
-					Log.d("Net", "Connect");
+					if(BingoSignal.CONNECT == Signal) {
+						joinOpponent();
+						Log.d("Net", "Connect");
+					}else{
+						Log.d("Net", "Not Connect signal !");
+						return;
+					}
 					Message msg = new Message();
 					msg.what = BingoSignal.CONNECT;
 					mMessenger.send(msg);
@@ -144,6 +148,9 @@ public class CommunicateOpponent {
 	}
 	public boolean isReady(){
 		return OppReady;
+	}
+	public boolean AmIReady(){
+		return ImReady;
 	}
 	public void Tell_Opponent_Im_Ready(){
 		if(ImReady) return;

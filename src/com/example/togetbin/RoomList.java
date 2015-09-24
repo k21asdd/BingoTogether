@@ -92,7 +92,7 @@ public class RoomList extends Activity{
 					ControlChannel.Query(
 							new String[]{"RoomName","UserName","Grid","number"}, 
 							list,
-							ControlChannel.Connect(BingoSignal.QUERY));
+							CommunicateServer.getInstance().Connect(BingoSignal.QUERY));
 					Message msg = new Message();
 					msg.what = 123;
 					mMessanger.send(msg);

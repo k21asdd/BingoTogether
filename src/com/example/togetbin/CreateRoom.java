@@ -41,12 +41,14 @@ public class CreateRoom extends Activity{
 		Confirm = (Button)findViewById(R.id.confirm);
 		GoBack = (Button)findViewById(R.id.goBack);
 		test = (TextView)findViewById(R.id.cr_text);
-		test.setText("");
 		ControlChannel = CommunicateServer.getInstance();
 		mHandler = new CRHandler(this);
 		new Thread(){
 			public void run() {
 				C2S = ControlChannel.Connect(BingoSignal.CREATE);
+				Message msg = new Message();
+				msg.what = BingoSignal.CREATE;
+				mHandler.sendMessage(msg);
 			};
 		}.start();
 		/*
@@ -67,6 +69,7 @@ public class CreateRoom extends Activity{
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				if(C2S == null) return;
 				new Thread(){
 					@Override
 					public void run() {
@@ -89,11 +92,25 @@ public class CreateRoom extends Activity{
 						data.putInt("INDEX", index);
 						data.putInt("GRID", Integer.valueOf(GridNumber));
 						Message msg = new Message();
-						msg.what = 123;
+						msg.what = BingoSignal.CONNECT;
 						msg.setData(data);
 						mHandler.sendMessage(msg);
 					}
 				}.start();
+			}
+		});
+		GoBack.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				try {
+					C2S.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				finish();
 			}
 		});
 	}
@@ -108,10 +125,10 @@ public class CreateRoom extends Activity{
 			CreateRoom act = mAct.get();
 			if(act == null)return;
 			switch (msg.what){
-			case 0:
-				test.setText(test.getText()+msg.getData().getString("Hello")+"\r\n");
+			case BingoSignal.CREATE:
+				test.setText("Connect to Server is OK !");
 				break;
-			case 123:
+			case BingoSignal.CONNECT:
 				Bundle data = msg.getData();
 				Intent intent = new Intent();
 				intent.putExtra("INDEX", data.getInt("INDEX"));

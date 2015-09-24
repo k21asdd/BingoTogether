@@ -31,6 +31,7 @@ public class BingoGame extends Activity{
 	private GenNumber gNumber = new GenNumber();
 	private int number = 0;
 	private Messenger mMessenger;
+	private boolean first = true;
 	//³s½u
 	private boolean GameOver;
 	private boolean Creator;
@@ -171,7 +172,10 @@ public class BingoGame extends Activity{
 	public void onWindowFocusChanged(boolean hasFocus) {
 		// TODO Auto-generated method stub
 		super.onWindowFocusChanged(hasFocus);
-		setNewGame();
+		if(first){
+			setNewGame();
+			first = false;
+		}
 	}
 	private class GenNumber {
 		private Stack<Integer> mStack;

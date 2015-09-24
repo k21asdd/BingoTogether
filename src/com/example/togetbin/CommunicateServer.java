@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -37,15 +36,11 @@ public class CommunicateServer {
 			out = new PrintWriter(control.getOutputStream());
 			out.println(signal);
 			out.flush();
-			Thread.sleep(5000);
 			return control;
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -95,19 +90,18 @@ public class CommunicateServer {
 			
 			int newPort;
 			Socket Opponent;
-			String pp;
 			
-			pp = in.readLine();
-			Log.d("NewPort",  pp);
-			newPort = Integer.valueOf(pp);
+			newPort = Integer.valueOf(in.readLine());
+			Log.d("NewPort",  String.valueOf(newPort));
 			Opponent = new Socket(Addr, newPort);
+			control.close();
 			index = connect2Server(Opponent);
 			if(index == -1){
 				//failed
+				System.out.println("Failed");
 			}else{
 				CommunicateOpponent.getInstance().setChannel2Server(Opponent);
 			}
-			control.close();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -121,9 +115,7 @@ public class CommunicateServer {
 		BufferedReader in;
 		try {
 			in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-			if((Integer.valueOf(in.readLine()) == 
-					BingoSignal.CREATE) && 
-					(in.readLine().compareTo("Q_OK") == 0)){
+			if(in.readLine().compareTo("Q_OK") == 0){
 				return Integer.valueOf(in.readLine());
 			}
 		} catch (IOException e) {

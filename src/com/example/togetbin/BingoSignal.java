@@ -6,7 +6,8 @@ public class BingoSignal {
 	public static final int CONNECT = 2;
 	public static final int STEP = 3;
 	public static final int TEARDOWN = 4;
-	public static final int CHAT = 5;
+	public static final int CLOSE = 5;
 	public static final int GAME_READY = 6;
 	public static final int WIN = 7;
+	public static final int HOOK = 8;
 }
